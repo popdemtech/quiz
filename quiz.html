@@ -19,14 +19,30 @@
                 font-family: sans-serif;
             }
 
-            #quizzendor { max-width: var(--container-max-width); }
+            #quizzendor {
+                max-width: var(--container-max-width);
+                padding: var(--spacing-normal);
+                box-sizing: border-box;
+                text-align: center;
+                border: 1px solid black;
+            }
+
+            .quizzenhat-layout {
+                display: flex;
+                align-items: center;
+            }
 
             .quiz-description {
                 margin-bottom: var(--spacing-big);
             }
 
+            .quiz-description > *:not(:last-child) { margin-bottom: var(--spacing-normal); }
+
+            #question-list {
+                margin-bottom: var(--spacing-big);
+            }
+
             .question {
-                border: 1px solid black;
                 padding: var(--spacing-small);
             }
 
@@ -43,21 +59,43 @@
                 padding: var(--spacing-small);
             }
 
+            .question-option:hover {
+                background-color: #eee;
+            }
+
             .selected {
                 background-color: #eee;
             }
 
-            .icon { max-width: fit-content; }
-            .icon svg { height: auto; }
+            #outcome {
+                padding: var(--spacing-normal);
+                border: 10px double black;
+                margin-bottom: var(--spacing-big);
+            }
 
-            .quiz-description svg { width: var(--container-max-width); }
+            #outcome .layout-left {
+                flex: 2;
+                text-align: center;
+            }
 
-            #outcome-icon svg { width: 200px; }
+            #outcome .layout-right {
+                flex: 1;
+            }
+
+            #outcome-icon { max-width: 200px; }
+
+            .icon svg { max-width: 100%; max-height: 100%; height: auto; }
 
             input[type=radio] {
                 position: fixed;
                 opacity: 0;
                 pointer-events: none;
+            }
+
+            button {
+                width: 50%;
+                font-size: var(--font-size-big);
+                padding: var(--spacing-small);
             }
         </style>
     </head>
@@ -69,7 +107,7 @@
                 document.getElementById('quizzendor').innerHTML = quizTemplate;
                 document.getElementById('label').innerHTML = quiz.label;
                 document.getElementById('description').innerHTML = quiz.description;
-                document.querySelector('.quiz-description .icon').innerHTML = quiz.icon;
+                document.getElementById('quiz-icon').innerHTML = quiz.icon;
                 
                 const startBtn = document.getElementById('click-to-start');
                 startBtn.innerHTML = quiz.startCta;
@@ -90,9 +128,11 @@
 
                     const result = quiz.getResult();
                     const { score, outcome } = result;
+                    const outcomeElement = document.getElementById('outcome');
                     const outcomeTitle = document.getElementById('outcome-title');
                     const outcomeDescription = document.getElementById('outcome-description');
                     const outcomeIcon = document.getElementById('outcome-icon');
+                    outcomeElement.classList.remove('display-none');
                     outcomeTitle.innerHTML = `You got ${outcome.name}`;
                     outcomeDescription.innerHTML = outcome.slogan;
                     outcomeIcon.innerHTML = outcome.icon;
@@ -149,9 +189,9 @@
                     optionElement.append(labelElement);
                     optionElement.append(inputElement);
                     optionElement.addEventListener('click', function(event) {
-                        const selected = questionElement.querySelector('.option-label.selected');
+                        const selected = questionElement.querySelector('.question-option.selected');
                         if (selected) { selected.classList.remove('selected'); }
-                        labelElement.classList.add('selected');
+                        optionElement.classList.add('selected');
                     });
 
                     questionElement.append(optionElement);
@@ -202,8 +242,7 @@
                     return result;
                 },
                 setDescription() { quiz.description = `Which of the Houses, ${quiz.outcomes.map(o => o.name).join(', ')} fits your personality best?`; },
-                setTraitScore() { quiz.traitScore = quiz.outcomes.reduce((score, o) => ({ ...score, [o.symbol]: { outcome: o, score: 0 }}), {}) },
-                start(event) { renderQuestions(quiz.questions); }
+                setTraitScore() { quiz.traitScore = quiz.outcomes.reduce((score, o) => ({ ...score, [o.symbol]: { outcome: o, score: 0 }}), {}) }
             };
 
             const questions = [
@@ -303,18 +342,20 @@
                     <div class="quiz-description">
                         <h1 id="label"></h1>
                         <div id="description"></div>
-                        <div class="icon"></div>
+                        <div id="quiz-icon" class="icon"></div>
                     </div>
 
                     <div id="question-list" class="display-none"></div>
 
-                    <div id="outcome">
-                        <div class="float-left">
-                            <h2 id="outcome-title"></h2>
-                            <p id="outcome-description"></p>
-                        </div>
-                        <div class="float-right">
-                            <div id="outcome-icon" class="icon"></div>
+                    <div id="outcome" class="display-none">
+                        <div class="quizzenhat-layout">
+                            <div class="layout-left">
+                                <h2 id="outcome-title"></h2>
+                                <p id="outcome-description"></p>
+                            </div>
+                            <div class="layout-right">
+                                <div id="outcome-icon" class="icon"></div>
+                            </div>
                         </div>
                     </div>
 
