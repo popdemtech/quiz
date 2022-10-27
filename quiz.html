@@ -103,6 +103,15 @@
         <div id="quizzendor"></div>
 
         <script>
+            /*
+                POPQUIZ Framework
+            */
+            function initQuiz() {
+                quiz.init(window.POPQUIZ.config);
+                renderQuiz(quiz);
+            }
+            document.body.onload = initQuiz;
+
             function renderQuiz(quiz) {
                 document.getElementById('quizzendor').innerHTML = quizTemplate;
                 document.getElementById('label').innerHTML = quiz.label;
@@ -145,7 +154,7 @@
                 const resetBtn = document.getElementById('click-to-reset');
                 resetBtn.innerHTML = quiz.resetCta;
                 resetBtn.addEventListener('click', function() {
-                    quiz.init(outcomes, questions);
+                    quiz.init(window.POPQUIZ.config);
                     renderQuiz(quiz);
                 });
 
@@ -208,25 +217,20 @@
                 });
             }
             
-            const qui = { id: 1, symbol: 'qui', name: 'Quizzendor', slogan: 'Saviors of the World', icon: quiIcon() };
-            const huf = { id: 2, symbol: 'huf', name: 'Huffencup', slogan: 'Heralds of the New Earth', icon: hufIcon() };
-            const ray = { id: 3, symbol: 'ray', name: 'Raymondlee', slogan: 'Masters of the Element', icon: rayIcon() };
-            const sly = { id: 4, symbol: 'sly', name: 'Slytherin', slogan: 'The Holy Torch', icon: slyIcon() };
-
-            const outcomes = [qui, huf, ray, sly];
-
             const quiz = {
-                init: function(outcomes, questions) {
+                init: function(quizConfig) {
+                    const {
+                        outcomes, questions, label, description, startCta, submitCta, resetCta, icon
+                    } = quizConfig;
                     quiz.outcomes = outcomes;
                     quiz.questions = questions;
-                    quiz.responses = {};
-                    quiz.label = 'Personality Quiz: Which House do you belong in?';
-                    quiz.startCta = 'Start';
-                    quiz.submitCta = 'Get Sorted';
-                    quiz.resetCta = 'Start Over';
+                    quiz.label = label;
+                    quiz.description = description; 
+                    quiz.startCta = startCta;
+                    quiz.submitCta = submitCta;
+                    quiz.resetCta = resetCta;
                     quiz.icon = quizIcon();
                     this.setTraitScore();
-                    this.setDescription();
                 },
                 applyEffect(effect) { quiz.traitScore[effect.trait] ? quiz.traitScore[effect.trait].score += effect.score : null; },
                 getResult() {
@@ -241,9 +245,46 @@
                     }
                     return result;
                 },
-                setDescription() { quiz.description = `Which of the Houses, ${quiz.outcomes.map(o => o.name).join(', ')} fits your personality best?`; },
-                setTraitScore() { quiz.traitScore = quiz.outcomes.reduce((score, o) => ({ ...score, [o.symbol]: { outcome: o, score: 0 }}), {}) }
+                setTraitScore() { quiz.traitScore = quiz.outcomes.reduce((score, o) => ({ ...score, [o.symbol]: { outcome: o, score: 0 }}), {}); }
             };
+
+            const quizTemplate = `
+                <div id="quiz">
+                    <div class="quiz-description">
+                        <h1 id="label"></h1>
+                        <div id="description"></div>
+                        <div id="quiz-icon" class="icon"></div>
+                    </div>
+
+                    <div id="question-list" class="display-none"></div>
+
+                    <div id="outcome" class="display-none">
+                        <div class="quizzenhat-layout">
+                            <div class="layout-left">
+                                <h2 id="outcome-title"></h2>
+                                <p id="outcome-description"></p>
+                            </div>
+                            <div class="layout-right">
+                                <div id="outcome-icon" class="icon"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="click-to-start"></button>
+                    <button id="click-to-submit" class="display-none"></button>
+                    <button id="click-to-reset" class="display-none"></button>
+                </div>
+            `;
+
+            /*
+                Quiz Customization
+            */
+            const qui = { id: 1, symbol: 'qui', name: 'Quizzendor', slogan: 'Saviors of the World', icon: quiIcon() };
+            const huf = { id: 2, symbol: 'huf', name: 'Huffencup', slogan: 'Heralds of the New Earth', icon: hufIcon() };
+            const ray = { id: 3, symbol: 'ray', name: 'Raymondlee', slogan: 'Masters of the Element', icon: rayIcon() };
+            const sly = { id: 4, symbol: 'sly', name: 'Slytherin', slogan: 'The Holy Torch', icon: slyIcon() };
+
+            const outcomes = [qui, huf, ray, sly];
 
             const questions = [
                 {
@@ -330,41 +371,6 @@
                 }
             ];
 
-            function initQuiz() {
-                quiz.init(outcomes, questions);
-                renderQuiz(quiz);
-            }
-
-            document.body.onload = initQuiz;
-
-            const quizTemplate = `
-                <div id="quiz">
-                    <div class="quiz-description">
-                        <h1 id="label"></h1>
-                        <div id="description"></div>
-                        <div id="quiz-icon" class="icon"></div>
-                    </div>
-
-                    <div id="question-list" class="display-none"></div>
-
-                    <div id="outcome" class="display-none">
-                        <div class="quizzenhat-layout">
-                            <div class="layout-left">
-                                <h2 id="outcome-title"></h2>
-                                <p id="outcome-description"></p>
-                            </div>
-                            <div class="layout-right">
-                                <div id="outcome-icon" class="icon"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button id="click-to-start"></button>
-                    <button id="click-to-submit" class="display-none"></button>
-                    <button id="click-to-reset" class="display-none"></button>
-                </div>
-            `;
-
             function quizIcon() {
                 return `<svg width="789.22mm" height="355.23mm" version="1.1" viewBox="0 0 .0037582 .0011961" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g transform="translate(.00050195 .0015175)"><g transform="translate(0 .00013846)"><rect x="-.00050195" y="-.0019037" width=".0037582" height=".0016916" fill="#fff" style="paint-order:fill markers stroke"/><g transform="matrix(-6.1586e-5 2.9125e-6 2.9125e-6 6.1586e-5 .012377 -.042102)" stroke="#000" stroke-width=".51356"><g stroke-width=".51356"><path d="m190.51 661.13s-0.58547-3.7633 0.857-5.7925c1.4424-2.0292 3.0444-1.982 4.3348-2.0102 1.2904-0.0282 3.0768-0.0835 3.222 0.063 0.14523 0.14646-0.12782 0.51108-0.12782 0.51108s-1.2711-0.29486-1.9787 0.4247c-0.70765 0.71955-1.8957 2.0183-0.47893 3.9428l1.4168 1.9246-1.9941 3.528z" fill="#d40000"/><path d="m191.17 666.75s-1.821-3.432-3.5864-2.5082c-1.7654 0.92376-1.7935 4.3748-1.7935 4.3748l-0.41589-0.0209s-0.74141-4.887 0.014-6.8113c0.75538-1.9244 2.3413-3.9125 6.6418-1.0131 4.3006 2.8994 4.6651 4.2585 4.6651 4.2585z" fill="#008033"/><path d="m199.37 664.55s0.31618-3.6608 2.3069-3.7443c1.9907-0.0836 3.5515 2.2792 3.5515 2.2792l0.39062-0.36965s-0.32146-2.8988-1.8722-4.2659c-3.018-2.6606-5.6292 0.10567-7.5273 1.8598-1.4106 1.3035-1.8183 5.4675-1.8183 5.4675z" fill="#2c5aa0"/></g><g fill="#d4aa00"><path d="m191.42 667.78c-0.14671-0.4074-0.60762-1.1482-0.60762-1.1482s2.4874-1.2079 3.8178-1.5484c1.5235-0.38987 4.6863-0.54504 4.6863-0.54504s0.0181 1.0619 0.0885 1.5871c0.0625 0.46682 0.29567 1.3817 0.29567 1.3817s-2.8011 0.11251-4.1433 0.47435c-1.3193 0.35509-3.7547 1.6438-3.7547 1.6438-0.0181-0.62561-0.16974-1.2543-0.38258-1.8454z" stroke-width=".51356"/><g stroke-width="12.663"><circle transform="matrix(.039171 -.010505 .010505 .039171 216.82 630.38)" cx="-559.39" cy="446.58" r="30.334" color="#000000"/><circle transform="matrix(.039171 -.010505 .010505 .039171 222.86 640.3)" cx="-559.39" cy="446.58" r="30.334" color="#000000"/><circle transform="matrix(.039171 -.010505 .010505 .039171 202.69 645.85)" cx="-559.39" cy="446.58" r="30.334" color="#000000"/></g></g></g><g stroke-linecap="round"><path d="m-6.312e-5 -0.0017342-7.964e-5 1.631e-5 -6.532e-5 4.594e-5 -4.628e-5 7.808e-5 -1.437e-5 9.527e-5 1.71e-5 1.0068e-4 4.856e-5 7.787e-5 6.499e-5 4.342e-5 7.874e-5 1.447e-5 6.966e-5 -1.242e-5 2.852e-5 -1.801e-5 7.233e-5 8.634e-5 5.196e-5 -4.481e-5 -7.501e-5 -8.48e-5 4.149e-5 -6.138e-5 1.909e-5 -1.0113e-4 -1.542e-5 -9.713e-5 -4.755e-5 -7.918e-5 -6.533e-5 -4.41e-5zm2.61e-6 7.555e-5h1.7e-7l3.853e-5 8.86e-6 3.079e-5 2.379e-5 3.052e-5 5.997e-5 9.69e-6 7.128e-5 -1.068e-5 7.171e-5 -9.59e-6 1.796e-5 -4.939e-5 -5.982e-5 -4.455e-5 4.727e-5 5.373e-5 6.499e-5 -1.453e-5 1.019e-5 -3.419e-5 6.3e-6 -3.854e-5 -8.8e-6 -2.578e-5 -1.805e-5 -5.01e-6 -5.28e-6 -2.985e-5 -5.636e-5 -1.002e-5 -7.306e-5 9.68e-6 -6.973e-5 2.88e-5 -5.704e-5 3.185e-5 -2.532e-5z" fill="#d40000" stroke="#000" stroke-linejoin="round" stroke-width="2.9577e-5" style="font-variation-settings:'wdth' 0.89, 'wght' 1.76;paint-order:fill markers stroke"/><text x="-0.00025421593" y="-0.00081176119" fill="#000000" font-family="Skia" font-size=".00031007px" font-weight="100" letter-spacing="-6.1522e-6px" stroke-width="3.1005e-5" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;paint-order:fill markers stroke" xml:space="preserve"><tspan x="-0.00025421593" y="-0.00081176119" fill="#000000" font-family="Skia" font-size=".00031007px" font-weight="100" stroke-width="3.1005e-5" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">Sorting Quiz</tspan></text><g stroke="#000" stroke-linejoin="round" stroke-width="2.9577e-5"><path d="m4.9326e-4 -0.0012742h-8.745e-5v-3.123e-5l-6.6e-7 -4.5e-7q-2.179e-5 1.379e-5 -5.361e-5 2.714e-5 -3.183e-5 1.36e-5 -6.165e-5 1.36e-5 -4.356e-5 0-6.768e-5 -2.718e-5 -2.412e-5 -2.761e-5 -2.412e-5 -7.511e-5 0-3.19e-5 3.3e-7 -6.496e-5 3.4e-7 -3.347e-5 3.4e-7 -5.092e-5 0-2.851e-5 -6.7e-7 -7.514e-5 -3.3e-7 -4.682e-5 -3.3e-7 -5.725e-5h8.978e-5q0 7.94e-6 -3.3e-7 4.89e-5 -3.3e-7 4.051e-5 -3.3e-7 6.743e-5 0 2.512e-5 0 5.591e-5 3.3e-7 3.053e-5 3.3e-7 4.388e-5 3.3e-7 3.238e-5 8.71e-6 4.751e-5 8.37e-6 1.517e-5 2.982e-5 1.517e-5 1.876e-5 0 4.255e-5 -1.085e-5 2.379e-5 -1.065e-5 3.552e-5 -1.968e-5 0-3.65e-6 0-3.712e-5 3.3e-7 -3.395e-5 3.3e-7 -7.22e-5 0-3.551e-5 -6.8e-7 -8.238e-5 -3.3e-7 -4.729e-5 -3.3e-7 -5.657e-5h9.013e-5q0 1.043e-5 -6.7e-7 5.386e-5 -3.3e-7 4.323e-5 -3.3e-7 1.0253e-4 0 4.638e-5 3.3e-7 8.372e-5 3.3e-7 3.758e-5 6.7e-7 1.0139e-4z" fill="#2c5aa0" style="font-variation-settings:'wdth' 0.89, 'wght' 1.76;paint-order:fill markers stroke"/><path d="m6.5353e-4 -0.0016729h-9.482e-5v-7.309e-5h9.482e-5zm-2.01e-6 3.9876e-4h-9.079e-5q3.3e-7 -1.45e-5 6.6e-7 -6.381e-5 3.4e-7 -4.913e-5 3.4e-7 -1.0411e-4 0-3.891e-5 -3.4e-7 -8.148e-5 0-4.252e-5 -6.6e-7 -9.21e-5h9.079e-5q-3.3e-7 4.663e-5 -6.8e-7 8.509e-5 -3.3e-7 3.825e-5 -3.3e-7 8.488e-5 0 7.558e-5 3.3e-7 1.1655e-4 6.8e-7 4.071e-5 6.8e-7 5.498e-5z" fill="#d4aa00" style="font-variation-settings:'wdth' 0.89, 'wght' 1.76;paint-order:fill markers stroke"/><path d="m9.6691e-4 -0.0012753q-1.642e-5 0-6.332e-5 0-4.657e-5 -2.6e-7 -7.437e-5 -2.6e-7 -3.284e-5 0-7.204e-5 2.6e-7 -3.886e-5 0-4.824e-5 0l-2.144e-5 -4.256e-5q2.311e-5 -3.235e-5 6.499e-5 -9.617e-5 4.187e-5 -6.403e-5 8.811e-5 -1.333e-4l-3.3e-7 -6.7e-7q-1.039e-5 0-2.58e-5 0t-2.68e-5 0q-2.043e-5 0-5.193e-5 4.6e-7 -3.149e-5 0-3.853e-5 0v-6.609e-5q1.005e-5 0 5.093e-5 2.2e-7 4.087e-5 0 6.902e-5 0 2.881e-5 0 6.935e-5 0 4.054e-5 -2.2e-7 5.26e-5 -2.2e-7l2.311e-5 3.984e-5q-4.69e-5 6.742e-5 -9.515e-5 1.3938e-4 -4.791e-5 7.197e-5 -6.03e-5 9.21e-5l3.3e-7 7e-7q1.206e-5 0 2.78e-5 0 1.576e-5 0 3.352e-5 0 4.221e-5 0 6.633e-5 0 2.412e-5 -2.3e-7 3.216e-5 -2.3e-7z" fill="#008033" style="font-variation-settings:'wdth' 0.89, 'wght' 1.76;paint-order:fill markers stroke"/><path d="m0.0012481-0.0012753q-1.642e-5 0-6.332e-5 0-4.657e-5 -2.6e-7 -7.437e-5 -2.6e-7 -3.284e-5 0-7.204e-5 2.6e-7 -3.887e-5 0-4.826e-5 0l-2.144e-5 -4.256e-5q2.313e-5 -3.235e-5 6.5e-5 -9.617e-5 4.188e-5 -6.403e-5 8.812e-5 -1.333e-4l-3.3e-7 -6.7e-7q-1.039e-5 0-2.58e-5 0-1.542e-5 0-2.681e-5 0-2.044e-5 0-5.193e-5 4.6e-7 -3.15e-5 0-3.854e-5 0v-6.609e-5q1.006e-5 0 5.093e-5 2.2e-7 4.088e-5 0 6.902e-5 0 2.883e-5 0 6.937e-5 0 4.054e-5 -2.2e-7 5.26e-5 -2.2e-7l2.311e-5 3.984e-5q-4.69e-5 6.742e-5 -9.515e-5 1.3938e-4 -4.791e-5 7.197e-5 -6.032e-5 9.21e-5l3.5e-7 7e-7q1.206e-5 0 2.78e-5 0 1.576e-5 0 3.35e-5 0 4.223e-5 0 6.635e-5 0 2.412e-5 -2.3e-7 3.216e-5 -2.3e-7z" fill="#008033" style="font-variation-settings:'wdth' 0.89, 'wght' 1.76;paint-order:fill markers stroke"/><path d="m0.0015538-0.0014477h-2.0671e-4q0 2.873e-5 1.206e-5 5.162e-5 1.206e-5 2.262e-5 3.718e-5 3.709e-5 1.842e-5 1.111e-5 3.987e-5 1.607e-5 2.144e-5 4.76e-6 4.792e-5 4.76e-6 1.875e-5 0 3.149e-5 -6.7e-7 1.306e-5 -7e-7 1.942e-5 -1.15e-6l-9.04e-6 6.653e-5q-6.7e-6 6.8e-7 -1.977e-5 1.13e-6 -1.306e-5 7e-7 -3.282e-5 7e-7 -5.295e-5 0-9.382e-5 -1.29e-5 -4.087e-5 -1.315e-5 -6.935e-5 -3.895e-5 -2.413e-5 -2.284e-5 -3.854e-5 -5.52e-5 -1.44e-5 -3.28e-5 -1.44e-5 -7.038e-5 0-3.914e-5 1.039e-5 -6.948e-5 1.039e-5 -3.033e-5 3.484e-5 -5.792e-5 2.043e-5 -2.333e-5 4.959e-5 -3.553e-5 2.914e-5 -1.244e-5 6.03e-5 -1.244e-5 3.216e-5 0 5.73e-5 1.017e-5 2.546e-5 9.96e-6 4.355e-5 3.009e-5 2.144e-5 2.378e-5 3.082e-5 5.725e-5 9.39e-6 3.329e-5 9.72e-6 7.921e-5zm-8.376e-5 -4.299e-5q-3.35e-6 -3.622e-5 -1.876e-5 -5.59e-5 -1.542e-5 -2.013e-5 -4.221e-5 -2.013e-5 -2.648e-5 0-4.356e-5 1.968e-5 -1.675e-5 1.946e-5 -2.245e-5 5.635e-5z" fill="#d4aa00" style="font-variation-settings:'wdth' 0.89, 'wght' 1.76;paint-order:fill markers stroke"/><path d="m0.0018883-0.0012742h-8.979e-5q0-1.088e-5 3.3e-7 -5.296e-5 6.8e-7 -4.254e-5 6.8e-7 -6.744e-5 0-2.106e-5 -3.3e-7 -5.181e-5 0-3.101e-5 -3.5e-7 -4.502e-5 -3.3e-7 -3.306e-5 -9.38e-6 -4.685e-5 -8.71e-6 -1.383e-5 -3.182e-5 -1.383e-5 -1.508e-5 0-3.585e-5 8.83e-6 -2.078e-5 8.61e-6 -3.954e-5 2.038e-5 0 2.69e-6 -3.3e-7 3.982e-5 0 3.735e-5 0 6.337e-5 0 3.712e-5 3.3e-7 8.849e-5 6.7e-7 5.113e-5 6.7e-7 5.702e-5h-9.013e-5q0-9.05e-6 3.5e-7 -5.204e-5 6.6e-7 -4.323e-5 6.6e-7 -1.1383e-4 0-4.435e-5 -3.3e-7 -8.692e-5 0-4.254e-5 -6.8e-7 -8.871e-5h8.812e-5l-3.3e-7 3.055e-5 6.7e-7 6.8e-7q2.982e-5 -1.786e-5 6.098e-5 -2.896e-5 3.149e-5 -1.107e-5 5.595e-5 -1.107e-5 4.188e-5 0 6.567e-5 2.713e-5 2.412e-5 2.718e-5 2.412e-5 7.242e-5 0 3.892e-5 -3.3e-7 6.632e-5 -3.4e-7 2.714e-5 -3.4e-7 4.57e-5 0 2.874e-5 3.4e-7 7.831e-5 6.6e-7 4.931e-5 6.6e-7 6.042e-5z" fill="#2c5aa0" style="font-variation-settings:'wdth' 0.89, 'wght' 1.76;paint-order:fill markers stroke"/></g><text transform="scale(1.048 .95418)" x="0.0018263909" y="-0.0013320153" fill="#d4aa00" font-family="Skia" font-size=".00072428px" stop-color="#000000" stroke="#000000" stroke-linejoin="round" stroke-width="2.7287e-5" style="-inkscape-stroke:none;font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;font-variation-settings:'wdth' 0.89, 'wght' 1.76;paint-order:fill markers stroke" xml:space="preserve"><tspan x="0.0018263909" y="-0.0013320153" fill="#d4aa00" font-family="Skia" font-size=".00072428px" stop-color="#000000" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.7287e-5" style="-inkscape-stroke:none;font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;font-variation-settings:'wdth' 0.89, 'wght' 1.76;paint-order:fill markers stroke">hat</tspan></text></g></g></g></svg>`;
             }
@@ -383,6 +389,18 @@
 
             function slyIcon() {
                 return `<svg width="405.69mm" height="553.76mm" version="1.1" viewBox="0 0 .0019318 .0018645" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><linearGradient id="linearGradient4431-7" x1="676.19" x2="220.55" y1="475.34" y2="475.34" gradientTransform="matrix(4.3529e-6 0 0 4.3529e-6 .00062773 .0011084)" gradientUnits="userSpaceOnUse"><stop stop-color="#e7e7e7" offset="0"/><stop stop-color="#f4f4f4" offset=".5"/><stop stop-color="#fff" offset=".78274"/><stop stop-color="#f5f5f5" offset="1"/></linearGradient><linearGradient id="linearGradient4823" x1="676.19" x2="220.55" y1="475.34" y2="475.34" gradientTransform="matrix(4.3529e-6 0 0 4.3529e-6 .00062773 .0011084)" gradientUnits="userSpaceOnUse"><stop stop-color="#acacac" offset="0"/><stop stop-color="#f3f3f3" stop-opacity="0" offset="1"/></linearGradient><linearGradient id="linearGradient4760" x1="252.63" x2="665.51" y1="531.27" y2="526.31" gradientTransform="matrix(4.3529e-6 0 0 4.3529e-6 .00062773 .0011084)" gradientUnits="userSpaceOnUse"><stop stop-color="#fff" offset="0"/><stop stop-color="#f4f4f4" offset=".5"/><stop stop-color="#eee" offset=".78274"/><stop stop-color="#d0d0d0" offset="1"/></linearGradient><linearGradient id="linearGradient4705" x1="206.85" x2="643.68" y1="528.84" y2="531.27" gradientTransform="matrix(4.3529e-6 0 0 4.3529e-6 .00062776 .0011084)" gradientUnits="userSpaceOnUse"><stop stop-color="#fffdd2" stop-opacity=".75439" offset="0"/><stop stop-color="#ffefc8" stop-opacity=".82456" offset=".11353"/><stop stop-color="#fff7c3" stop-opacity=".83333" offset=".54393"/><stop stop-color="#fff0ce" stop-opacity=".82456" offset=".81916"/><stop stop-color="#fff1b9" stop-opacity=".81579" offset="1"/></linearGradient><radialGradient id="radialGradient7264" cx="344.92" cy="405.24" r="115.75" gradientTransform="matrix(5.3467e-6 -1.5717e-7 2.0222e-7 6.8781e-6 .00065016 .00061946)" gradientUnits="userSpaceOnUse"><stop stop-color="#fffefa" offset="0"/><stop stop-color="#f2e6ac" offset=".47355"/><stop stop-color="#f6f6f6" offset=".6952"/><stop stop-color="#f0f0e7" offset=".84685"/><stop stop-color="#c3c3c3" stop-opacity=".55556" offset="1"/></radialGradient></defs><g transform="translate(.00074543 .0013559)"><g transform="translate(-.0023537 -.0038442)"><path d="m0.0016445 0.0024024c-5.705e-5 7.3564e-4 -1.4345e-4 0.0016239 9.2966e-4 0.0023288 0.0010731-7.0496e-4 9.8672e-4 -0.0015932 9.2965e-4 -0.0023288-3.5601e-4 -4.36e-6 -6.5093e-4 -4.789e-5 -9.2965e-4 -2.9165e-4 -2.7874e-4 2.4376e-4 -5.7368e-4 2.8729e-4 -9.2966e-4 2.9165e-4z" fill="url(#linearGradient4431-7)" stroke="url(#linearGradient4823)" stroke-width="1.3059e-5"/><path d="m0.0017558 0.0025242c-5.023e-5 6.4767e-4 -1.2628e-4 0.0014296 8.184e-4 0.0020503 9.4471e-4 -6.2064e-4 8.6863e-4 -0.0014026 8.1844e-4 -0.0020503-3.1342e-4 -3.84e-6 -5.7307e-4 -4.214e-5 -8.1844e-4 -2.5678e-4 -2.4538e-4 2.1464e-4 -5.0499e-4 2.5294e-4 -8.184e-4 2.5678e-4z" fill="url(#linearGradient4760)" stroke-width="4.3529e-6"/><path d="m0.0017558 0.0025242c-5.024e-5 6.4767e-4 -1.2628e-4 0.0014296 8.1839e-4 0.0020503 9.4472e-4 -6.2064e-4 8.6863e-4 -0.0014026 8.1844e-4 -0.0020503-3.1341e-4 -3.83e-6 -5.7306e-4 -4.215e-5 -8.1844e-4 -2.5676e-4 -2.4537e-4 2.1461e-4 -5.0498e-4 2.5293e-4 -8.1839e-4 2.5676e-4z" fill="none" stroke="#797979" stroke-width="2.6118e-5"/><path d="m0.0017558 0.0025242c-5.024e-5 6.4767e-4 -1.2628e-4 0.0014296 8.1839e-4 0.0020503 9.4472e-4 -6.2064e-4 8.6863e-4 -0.0014026 8.1844e-4 -0.0020503-3.1341e-4 -3.83e-6 -5.7306e-4 -4.215e-5 -8.1844e-4 -2.5676e-4 -2.4537e-4 2.1461e-4 -5.0498e-4 2.5293e-4 -8.1839e-4 2.5676e-4z" fill="none" stroke="url(#linearGradient4705)" stroke-width="2.1765e-5"/><g transform="matrix(4.3529e-6 0 0 4.3529e-6 .0011263 .0021655)"><circle transform="matrix(2.5,0,0,2.5,-220.03,-359.26)" cx="221.06" cy="147.12" r="2.6973" fill="url(#radialGradient24353)"/><circle transform="matrix(2.5,0,0,2.5,-18.454,-297.36)" cx="221.06" cy="147.12" r="2.6973" fill="url(#radialGradient24355)"/><circle transform="matrix(2.5,0,0,2.5,-420.45,-297.36)" cx="221.06" cy="147.12" r="2.6973" fill="url(#radialGradient24357)"/><circle transform="matrix(2.5,0,0,2.5,-427.82,-154.15)" cx="221.06" cy="147.12" r="2.6973" fill="url(#radialGradient24359)"/><circle transform="matrix(2.5,0,0,2.5,-390.43,18.045)" cx="221.06" cy="147.12" r="2.6973" fill="url(#radialGradient24361)"/><circle transform="matrix(2.5,0,0,2.5,-220.03,203.97)" cx="221.06" cy="147.12" r="2.6973" fill="url(#radialGradient24363)"/><circle transform="matrix(2.5,0,0,2.5,-49.086,18.045)" cx="221.06" cy="147.12" r="2.6973" fill="url(#radialGradient24365)"/><circle transform="matrix(2.5,0,0,2.5,-11.243,-153.69)" cx="221.06" cy="147.12" r="2.6973" fill="url(#radialGradient24367)"/></g><path d="m0.0028319 0.0040619c-1.0609e-4 -1.949e-5 -1.9602e-4 -6.32e-5 -2.5485e-4 -1.5327e-4 -5.883e-5 9.006e-5 -1.4876e-4 1.3378e-4 -2.5485e-4 1.5327e-4 1.0091e-4 -2.0565e-4 1.6401e-4 -4.1129e-4 1.7286e-4 -6.2509e-4 -1.6415e-4 6.3e-6 -3.227e-4 6.938e-5 -4.8122e-4 1.7025e-4 1.502e-5 -1.0605e-4 4.873e-5 -1.9595e-4 1.1816e-4 -2.5475e-4 -6.943e-5 -5.881e-5 -1.0314e-4 -1.487e-4 -1.1816e-4 -2.5475e-4 1.5855e-4 1.0086e-4 3.1709e-4 1.6394e-4 4.8122e-4 1.7043e-4 -8.85e-6 -2.136e-4 -7.195e-5 -4.1924e-4 -1.7286e-4 -6.2487e-4 1.0609e-4 1.949e-5 1.9602e-4 6.32e-5 2.5485e-4 1.5326e-4 5.883e-5 -9.005e-5 1.4876e-4 -1.3377e-4 2.5485e-4 -1.5326e-4 -1.0091e-4 2.0565e-4 -1.64e-4 4.1129e-4 -1.7358e-4 6.2487e-4 1.6341e-4 -6.49e-6 3.2195e-4 -6.957e-5 4.8052e-4 -1.7043e-4 -1.503e-5 1.0605e-4 -4.873e-5 1.9594e-4 -1.1816e-4 2.5475e-4 6.943e-5 5.88e-5 1.0313e-4 1.487e-4 1.1816e-4 2.5475e-4 -1.5855e-4 -1.0087e-4 -3.1709e-4 -1.6394e-4 -4.8052e-4 -1.7025e-4 9.58e-6 2.1379e-4 7.267e-5 4.1944e-4 1.7358e-4 6.2509e-4z" fill="url(#radialGradient7264)" opacity=".9" stroke="#482e00" stroke-width="4.3529e-6px"/><ellipse cx=".0025761" cy=".0033525" rx=".00010587" ry=".00010586" fill="url(#radialGradient24369)" stroke-width="3.925e-5"/></g></g></svg>`;
+            }
+
+            window.POPQUIZ = {};
+            window.POPQUIZ.config = {
+                outcomes,
+                questions,
+                label: 'Personality Quiz: Which House do you belong in?',
+                description: `Which of the Houses, ${outcomes.map(o => o.name).join(', ')} fits your personality best?`,
+                startCta: 'Get Sorted',
+                resetCta: 'Start Over',
+                submitCta: 'Get Sorted',
+                icon: quizIcon()
             }
         </script>
     </body>
